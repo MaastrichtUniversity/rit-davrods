@@ -1,7 +1,7 @@
 FROM centos:7
 
 # install required packages
-RUN ( yum -y install wget \
+RUN ( yum -y install wget nano \
                      git zlib \
                      openssl openssl-libs \
                      boost boost-system boost-filesystem \
