@@ -1,5 +1,9 @@
 FROM centos:7
 
+RUN yum install -y \
+    # Add EPEL repository to download extra packages
+    epel-release
+
 # install required packages
 RUN ( yum -y install wget nano \
                      git zlib \
@@ -14,17 +18,18 @@ RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install iRODS runtime and icommands
-ARG irods_version=4.1.10
-RUN ( wget ftp://ftp.renci.org/pub/irods/releases/$irods_version/centos7/irods-runtime-$irods_version-centos7-x86_64.rpm )
-RUN ( rpm -ivh irods-runtime-$irods_version-centos7-x86_64.rpm )
-RUN ( wget ftp://ftp.renci.org/pub/irods/releases/$irods_version/centos7/irods-icommands-$irods_version-centos7-x86_64.rpm )
-RUN ( rpm -ivh irods-icommands-$irods_version-centos7-x86_64.rpm )
+ARG irods_version=4.2.3
+RUN rpm --import https://packages.irods.org/irods-signing-key.asc \
+    && wget -qO - https://packages.irods.org/renci-irods.yum.repo | tee /etc/yum.repos.d/renci-irods.yum.repo \
+    && yum install -y \
+    irods-runtime-${irods_version} \
+    irods-icommands-${irods_version}
 
 # install Davrods
-ARG davrods_version=4.1_1.1.1
+ARG davrods_version=4.2.3_1.4.1
 ARG davrods_github_tag=$davrods_version
-RUN ( wget https://github.com/UtrechtUniversity/davrods/releases/download/$davrods_github_tag/davrods-$davrods_version-1.el7.centos.x86_64.rpm )
-RUN ( rpm -ivh davrods-$davrods_version-1.el7.centos.x86_64.rpm )
+RUN ( wget https://github.com/UtrechtUniversity/davrods/releases/download/$davrods_github_tag/davrods-$davrods_version-1.rpm )
+RUN ( rpm -ivh davrods-$davrods_version-1.rpm )
 RUN ( mv /etc/httpd/conf.d/davrods-vhost.conf /etc/httpd/conf.d/davrods-vhost.conf.org )
 
 # cleanup RPMs
@@ -45,9 +50,9 @@ COPY run-httpd.sh /opt/run-httpd.sh
 RUN ( chmod +x /opt/run-httpd.sh )
 
 RUN sed -ri \
-		-e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
-		-e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
-		"/etc/httpd/conf/httpd.conf"
+        -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
+        -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
+        "/etc/httpd/conf/httpd.conf"
 
 EXPOSE 80
 CMD ["/opt/run-httpd.sh"]
