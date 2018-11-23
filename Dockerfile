@@ -14,7 +14,7 @@ RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install iRODS runtime and icommands
-ARG irods_version=4.1.10
+ARG irods_version=4.1.12
 RUN ( wget ftp://ftp.renci.org/pub/irods/releases/$irods_version/centos7/irods-runtime-$irods_version-centos7-x86_64.rpm )
 RUN ( rpm -ivh irods-runtime-$irods_version-centos7-x86_64.rpm )
 RUN ( wget ftp://ftp.renci.org/pub/irods/releases/$irods_version/centos7/irods-icommands-$irods_version-centos7-x86_64.rpm )
