@@ -1,5 +1,8 @@
 FROM centos:7
 
+ARG ENV_IRODS_VERSION
+ARG ENV_DAVRODS_VERSION
+
 RUN yum install -y \
     # Add EPEL repository to download extra packages
     epel-release
@@ -18,7 +21,7 @@ RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install iRODS runtime and icommands
-ARG irods_version=4.2.3
+ARG irods_version=${ENV_IRODS_VERSION}
 RUN rpm --import https://packages.irods.org/irods-signing-key.asc \
     && wget -qO - https://packages.irods.org/renci-irods.yum.repo | tee /etc/yum.repos.d/renci-irods.yum.repo \
     && yum install -y \
@@ -26,7 +29,7 @@ RUN rpm --import https://packages.irods.org/irods-signing-key.asc \
     irods-icommands-${irods_version}
 
 # install Davrods
-ARG davrods_version=4.2.3_1.4.1
+ARG davrods_version=${ENV_DAVRODS_VERSION}
 ARG davrods_github_tag=$davrods_version
 RUN ( wget https://github.com/UtrechtUniversity/davrods/releases/download/$davrods_github_tag/davrods-$davrods_version-1.rpm )
 RUN ( rpm -ivh davrods-$davrods_version-1.rpm )
