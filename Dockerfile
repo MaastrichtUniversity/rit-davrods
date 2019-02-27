@@ -1,6 +1,6 @@
 FROM centos:7
 
-ARG ENV_IRODS_VERSION
+ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_DAVRODS_VERSION
 
 RUN yum install -y \
@@ -21,7 +21,7 @@ RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install iRODS runtime and icommands
-ARG irods_version=${ENV_IRODS_VERSION}
+ARG irods_version=${ENV_DAVRODS_IRODS_VERSION}
 RUN rpm --import https://packages.irods.org/irods-signing-key.asc \
     && wget -qO - https://packages.irods.org/renci-irods.yum.repo | tee /etc/yum.repos.d/renci-irods.yum.repo \
     && yum install -y \
