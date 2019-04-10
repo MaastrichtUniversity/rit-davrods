@@ -40,7 +40,7 @@ RUN ( yum clean all && rm -rf *.rpm )
 
 
 # the executable 'run-httpd.sh' expects the following files to be provided
-# and will move them into proper locations before starting the HTTPd searvice
+# and will move them into proper locations before starting the HTTPd service
 #
 # The expected files:
 #   - davrods-vhost.conf: the Apache configuration for the WebDAV vhost
