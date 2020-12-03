@@ -64,10 +64,8 @@ ARG ENV_FILEBEAT_VERSION
 #                                INSTALLATION FILEBEAT
 ###############################################################################
 
-### install Filebeat
-RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ENV_FILEBEAT_VERSION}-amd64.deb -O /tmp/filebeat.deb \
- && dpkg -i /tmp/filebeat.deb
-
+RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ENV_FILEBEAT_VERSION}-x86_64.rpm -O /tmp/filebeat.rpm \
+ && rpm -Uvh /tmp/filebeat.rpm
 ADD filebeat.yml /etc/filebeat/filebeat.yml
 RUN chmod go-w /etc/filebeat/filebeat.yml
 
