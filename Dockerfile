@@ -57,5 +57,17 @@ RUN sed -ri \
         -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
         "/etc/httpd/conf/httpd.conf"
 
+
+###############################################################################
+#                                INSTALLATION FILEBEAT
+###############################################################################
+
+### install Filebeat
+RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ENV_FILEBEAT_VERSION}-amd64.deb -O /tmp/filebeat.deb \
+ && dpkg -i /tmp/filebeat.deb
+
+ADD filebeat.yml /etc/filebeat/filebeat.yml
+RUN chmod go-w /etc/filebeat/filebeat.yml
+
 EXPOSE 80
 CMD ["/opt/run-httpd.sh"]
