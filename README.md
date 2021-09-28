@@ -50,3 +50,8 @@ When connecting to iRODS servers that have SSL **enabled**:
 ```
     "irods_client_server_policy": "CS_NEG_REQUIRE",
 ```
+
+Or, when you don't want to enforce this on the client side and just connect to whatever the server is offering, use:
+```
+    "irods_client_server_policy": "CS_NEG_DONT_CARE",
+```
