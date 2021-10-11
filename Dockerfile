@@ -48,6 +48,18 @@ RUN ( yum clean all && rm -rf *.rpm )
 ADD config/davrods-vhost.conf /config/davrods-vhost.conf
 ADD config/irods_environment.json /config/irods_environment.json
 
+# Conditionally trust the custom DataHub Certificate Authority (CA) for iRODS-SSL-connections
+ADD config/test_only_dev_irods_dh_ca_cert.pem /tmp/test_only_dev_irods_dh_ca_cert.pem
+ARG SSL_ENV
+RUN if [[ $SSL_ENV != "acc" ]] && [[ $SSL_ENV != "prod" ]]; then \
+       echo "Adding custom DataHub iRODS-CA-certificate to the CA-rootstore (FOR DEV & TEST ONLY!)..." ; \
+       cp /tmp/test_only_dev_irods_dh_ca_cert.pem /etc/pki/ca-trust/source/anchors/test_only_dev_irods_dh_ca_cert.pem ; \
+       update-ca-trust ; \
+       echo "done!" ; \
+    else \
+       echo "Skipping update of the CA-rootstore" ; \
+    fi
+
 # start httpd
 COPY run-httpd.sh /opt/run-httpd.sh
 RUN ( chmod +x /opt/run-httpd.sh )
