@@ -18,6 +18,9 @@ if [ -f /config/irods_environment.json ]; then
     chmod 0644 /etc/httpd/irods/irods_environment.json
 fi
 
+# Start filebeat
+/etc/init.d/filebeat start
+
 # start the apache daemon
 exec /usr/sbin/apachectl -DFOREGROUND
 
