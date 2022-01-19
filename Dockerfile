@@ -14,7 +14,8 @@ RUN ( yum -y install wget nano \
                      boost boost-system boost-filesystem \
                      boost-chrono boost-regex boost-thread \
                      jansson fuse-libs \
-                     httpd)
+                     httpd initscripts \
+                     ca-certificates )
 
 # create temporary directory
 RUN ( mkdir -p /tmp )
