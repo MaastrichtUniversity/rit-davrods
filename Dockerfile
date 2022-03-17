@@ -46,7 +46,8 @@ RUN ( yum clean all && rm -rf *.rpm )
 # The expected files:
 #   - davrods-vhost.conf: the Apache configuration for the WebDAV vhost
 #   - irods_environment.json: runtime environment of iRODS
-ADD config/davrods-vhost.conf /config/davrods-vhost.conf
+ARG VHOST_FILE
+ADD config/${VHOST_FILE} /config/davrods-vhost.conf
 ADD config/irods_environment.json /config/irods_environment.json
 
 # Conditionally trust the custom DataHub Certificate Authority (CA) for iRODS-SSL-connections
