@@ -25,4 +25,4 @@ fi
 exec /usr/sbin/apachectl -DFOREGROUND
 
 # this script must end with a persistent foreground process
-tail -F /var/log/httpd/access.log /var/log/httpd/error.log |awk '/^==> / {a=substr($0, 5, length-8); next} {print a":"$0}'
+tail -F apache.access.log /var/log/httpd/apache.error.log

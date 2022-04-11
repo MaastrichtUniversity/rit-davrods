@@ -46,7 +46,8 @@ RUN ( yum clean all && rm -rf *.rpm )
 # The expected files:
 #   - davrods-vhost.conf: the Apache configuration for the WebDAV vhost
 #   - irods_environment.json: runtime environment of iRODS
-ADD config/davrods-vhost.conf /config/davrods-vhost.conf
+ARG VHOST_FILE
+ADD config/${VHOST_FILE} /config/davrods-vhost.conf
 ADD config/irods_environment.json /config/irods_environment.json
 
 # Conditionally trust the custom DataHub Certificate Authority (CA) for iRODS-SSL-connections
@@ -79,7 +80,8 @@ ARG ENV_FILEBEAT_VERSION
 
 RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ENV_FILEBEAT_VERSION}-x86_64.rpm -O /tmp/filebeat.rpm \
  && rpm -Uvh /tmp/filebeat.rpm
-ADD filebeat.yml /etc/filebeat/filebeat.yml
+ARG FILEBEAT_CONFIG_FILE
+ADD config/${FILEBEAT_CONFIG_FILE} /etc/filebeat/filebeat.yml
 RUN chmod go-w /etc/filebeat/filebeat.yml
 
 EXPOSE 80
