@@ -7,6 +7,7 @@ filebeat.inputs:
     paths:
       - /var/log/httpd/apache.access.log
       - /var/log/httpd/apache.error.log
+      - /var/log/httpd/apache.audit.lo
     tags: ["DAVRODS"]
 
 # Disable filebeat monitoring  
