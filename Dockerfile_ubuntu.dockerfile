@@ -1,3 +1,38 @@
+# This build-stage-image contains irods-dev, thus containing clang, which is a huge package. Separated it from the main image to minimize size
+FROM ubuntu:22.04 AS build
+
+ARG ENV_DAVRODS_IRODS_VERSION
+ARG ENV_IRODS_VERSION
+
+RUN apt update
+RUN apt install -y \
+    apache2-dev \
+    git \
+    wget \
+    cmake
+    
+RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
+    && echo "deb [arch=amd64] https://packages.irods.org/apt/ jammy main" | tee /etc/apt/sources.list.d/renci-irods.list \
+    && apt update \
+    && DEBIAN_FRONTEND=noninteractive apt install -y \
+    irods-runtime=${ENV_IRODS_VERSION} \
+    irods-dev=${ENV_IRODS_VERSION} 
+
+# Clone the Utrecht University Davrods repository
+WORKDIR /tmp
+RUN git clone https://github.com/UtrechtUniversity/davrods.git
+RUN mkdir -p /tmp/davrods/build
+
+# Update iRODS version in CMakeLists file
+RUN sed -i 's/${ENV_DAVRODS_IRODS_VERSION}/4.3.2/g' /tmp/davrods/CMakeLists.txt
+# Workaround proposed by iRODS team in https://github.com/UtrechtUniversity/davrods/issues/35
+RUN sed -i 's/module AP_MODULE_DECLARE_DATA davrods_module;/extern module AP_MODULE_DECLARE_DATA davrods_module;/g' /tmp/davrods/src/mod_davrods.h
+# Build Davrods for our iRODS version
+WORKDIR /tmp/davrods/build
+RUN cmake ..
+RUN make
+
+# Actual image below
 FROM ubuntu:22.04
 
 ARG ENV_DAVRODS_IRODS_VERSION
@@ -73,7 +108,7 @@ RUN sed -ri \
 # Enable 'davrods' in Apache2
 RUN a2enmod davrods
 # Add customized davrods executable to be used with iRODS 4.3.2 runtime currently installed
-ADD mod_davrods.so /usr/lib/apache2/modules/mod_davrods.so
+COPY --from=build /tmp/davrods/build/mod_davrods.so /usr/lib/apache2/modules/mod_davrods.so
 
 EXPOSE 80
 CMD ["/opt/run-httpd.sh"]
