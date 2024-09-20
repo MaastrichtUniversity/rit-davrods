@@ -5,9 +5,9 @@ filebeat.inputs:
     json.overwrite_keys: true
     enabled: true
     paths:
-      - /var/log/httpd/apache.access.log
-      - /var/log/httpd/apache.error.log
-      - /var/log/httpd/apache.audit.log
+      - /var/log/apache2/apache.access.log
+      - /var/log/apache2/apache.error.log
+      - /var/log/apache2/apache.audit.log
     tags: ["DAVRODS"]
 
 # Disable filebeat monitoring  
