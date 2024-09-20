@@ -61,14 +61,19 @@ RUN if [ $SSL_ENV != "acc" ] && [ $SSL_ENV != "prod" ]; then \
     fi
 
 
-# httpd config
+# apache2 config
 COPY run-httpd.sh /opt/run-httpd.sh
 RUN ( chmod +x /opt/run-httpd.sh )
-
+RUN mkdir -p /var/log/apache2
 RUN sed -ri \
         -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
         -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
-        "/etc/apache2/apache2.conf"
+        "/etc/apache2/apache2.conf" 
+
+# Enable 'davrods' in Apache2
+RUN a2enmod davrods
+# Add customized davrods executable to be used with iRODS 4.3.2 runtime currently installed
+ADD mod_davrods.so /usr/lib/apache2/modules/mod_davrods.so
 
 EXPOSE 80
 CMD ["/opt/run-httpd.sh"]
