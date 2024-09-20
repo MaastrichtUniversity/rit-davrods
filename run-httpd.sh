@@ -6,6 +6,8 @@ if [ -f /config/davrods-vhost.conf ]; then
     fi
     cp /config/davrods-vhost.conf /etc/apache2/sites-available/davrods-vhost.conf
     chmod 0644 /etc/apache2/sites-available/davrods-vhost.conf
+    sed -i "s/\$VIRTUAL_HOST/$VIRTUAL_HOST/g" /etc/apache2/sites-available/davrods-vhost.conf
+    sed -i "s/\$IRODS_SERVER/$IRODS_SERVER/g" /etc/apache2/sites-available/davrods-vhost.conf
 fi
 
 if [ -f /config/irods_environment.json ]; then
@@ -15,6 +17,10 @@ fi
 
 # Start filebeat
 /etc/init.d/filebeat start
+
+# Remove default webpage and enable davrods
+rm -f /etc/apache2/sites-enabled/*
+ln -s /etc/apache2/sites-available/davrods-vhost.conf /etc/apache2/sites-enabled/davrods-vhost.conf
 
 # start the apache daemon
 exec /usr/sbin/apachectl -DFOREGROUND
