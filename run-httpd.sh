@@ -18,6 +18,9 @@ fi
 # Start filebeat
 /etc/init.d/filebeat start
 
+# Make log directory
+mkdir -p /var/log/apache2
+
 # Remove default webpage and enable davrods
 rm -f /etc/apache2/sites-enabled/*
 ln -s /etc/apache2/sites-available/davrods-vhost.conf /etc/apache2/sites-enabled/davrods-vhost.conf

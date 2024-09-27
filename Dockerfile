@@ -99,7 +99,6 @@ RUN if [ $SSL_ENV != "acc" ] && [ $SSL_ENV != "prod" ]; then \
 # apache2 config
 COPY run-httpd.sh /opt/run-httpd.sh
 RUN ( chmod +x /opt/run-httpd.sh )
-RUN mkdir -p /var/log/apache2
 RUN sed -ri \
         -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
         -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
