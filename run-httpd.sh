@@ -26,7 +26,7 @@ rm -f /etc/apache2/sites-enabled/*
 ln -s /etc/apache2/sites-available/davrods-vhost.conf /etc/apache2/sites-enabled/davrods-vhost.conf
 
 # start the apache daemon
-exec /usr/sbin/apachectl -DFOREGROUND
+/etc/init.d/apache2 start
 
 # this script must end with a persistent foreground process
 tail -F /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
