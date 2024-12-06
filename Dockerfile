@@ -45,7 +45,8 @@ RUN apt install -y \
     wget \
     nano \
     gnupg2 \
-    apache2
+    apache2 \
+    libapache2-mod-security2
 
 # Install Filebeat
 ARG FILEBEAT_CONFIG_FILE
@@ -102,7 +103,11 @@ RUN ( chmod +x /opt/run-httpd.sh )
 RUN sed -ri \
         -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
         -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
-        "/etc/apache2/apache2.conf" 
+        "/etc/apache2/apache2.conf"
+
+# Add security2_module config to replace "Server: Apache" header to "Server: DataHub"
+COPY config/security2_module.conf /tmp/security2_module.conf
+RUN cat tmp/security2_module.conf >> /etc/apache2/apache2.conf
 
 # Enable 'davrods' in Apache2
 RUN a2enmod davrods
