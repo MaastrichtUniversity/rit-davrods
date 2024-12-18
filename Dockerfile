@@ -109,6 +109,11 @@ RUN sed -ri \
 COPY config/security2_module.conf /tmp/security2_module.conf
 RUN cat tmp/security2_module.conf >> /etc/apache2/apache2.conf
 
+# Add allowed request methods
+ARG ALLOWED_METHODS_FILE
+COPY config/${ALLOWED_METHODS_FILE} /etc/apache2/conf-available/${ALLOWED_METHODS_FILE}
+RUN ln -s /etc/apache2/conf-available/${ALLOWED_METHODS_FILE} /etc/apache2/conf-enabled/${ALLOWED_METHODS_FILE}
+
 # Enable 'davrods' in Apache2
 RUN a2enmod davrods
 # Add customized davrods executable to be used with iRODS 4.3.2 runtime currently installed
