@@ -21,12 +21,13 @@ RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - 
 # Clone the Utrecht University Davrods repository
 WORKDIR /tmp
 RUN git clone https://github.com/UtrechtUniversity/davrods.git
+WORKDIR /tmp/davrods
+RUN git checkout c3d7b98878d8fd823f24bcbc5bca2928f4e8a100
+WORKDIR /tmp
 RUN mkdir -p /tmp/davrods/build
 
 # Update iRODS version in CMakeLists file
 RUN sed -i 's/${ENV_DAVRODS_IRODS_VERSION}/4.3.2/g' /tmp/davrods/CMakeLists.txt
-# Workaround proposed by iRODS team in https://github.com/UtrechtUniversity/davrods/issues/35
-RUN sed -i 's/module AP_MODULE_DECLARE_DATA davrods_module;/extern module AP_MODULE_DECLARE_DATA davrods_module;/g' /tmp/davrods/src/mod_davrods.h
 # Build Davrods for our iRODS version
 WORKDIR /tmp/davrods/build
 RUN cmake ..
