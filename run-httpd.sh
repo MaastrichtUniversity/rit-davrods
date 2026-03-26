@@ -16,7 +16,12 @@ if [ -f /config/irods_environment.json ]; then
 fi
 
 # Start filebeat
-/etc/init.d/filebeat start
+if command -v filebeat >/dev/null 2>&1; then
+  filebeat -c /etc/filebeat/filebeat.yml --strict.perms=false >/var/log/filebeat.log 2>&1 &
+  echo "INFO: Started filebeat using binary"
+else
+  echo "WARNING: filebeat is not available in this container, skipping startup"
+fi
 
 # Make log directory
 mkdir -p /var/log/apache2
@@ -29,4 +34,5 @@ ln -s /etc/apache2/sites-available/davrods-vhost.conf /etc/apache2/sites-enabled
 /etc/init.d/apache2 start
 
 # this script must end with a persistent foreground process
-tail -F /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
+touch /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
+exec tail -F /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
