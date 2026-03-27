@@ -1,13 +1,16 @@
 filebeat.inputs:
-  - type: log
-    json.keys_under_root: true
-    json.add_error_key: true
-    json.overwrite_keys: true
+  - type: filestream
+    id: davrods-log
     enabled: true
     paths:
       - /var/log/apache2/apache.access.log
       - /var/log/apache2/apache.error.log
       - /var/log/apache2/apache.audit.log
+    parsers:
+      - ndjson:
+          keys_under_root: true
+          add_error_key: true
+          overwrite_keys: true
     tags: ["DAVRODS"]
 
 # Disable filebeat monitoring  
