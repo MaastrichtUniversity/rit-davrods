@@ -11,12 +11,12 @@ RUN apt install -y \
     wget \
     cmake
     
-RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ jammy main" | tee /etc/apt/sources.list.d/renci-irods.list \
+RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | gpg --dearmor -o /usr/share/keyrings/irods-archive-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/irods-archive-keyring.gpg] https://packages.irods.org/apt/ jammy main" > /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
-    irods-dev=${ENV_IRODS_VERSION} 
+    irods-dev=${ENV_IRODS_VERSION}
 
 # Clone the Utrecht University Davrods repository
 WORKDIR /tmp
@@ -59,8 +59,8 @@ RUN chmod go-w /etc/filebeat/filebeat.yml
 
 # Install iRODS runtime and icommands
 # We install the version that is currently running in acc/prod
-RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ jammy main" | tee /etc/apt/sources.list.d/renci-irods.list \
+RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | gpg --dearmor -o /usr/share/keyrings/irods-archive-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/irods-archive-keyring.gpg] https://packages.irods.org/apt/ jammy main" > /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
