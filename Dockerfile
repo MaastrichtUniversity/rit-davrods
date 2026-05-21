@@ -1,5 +1,5 @@
 # This build-stage-image contains irods-dev, thus containing clang, which is a huge package. Separated it from the main image to minimize size
-FROM ubuntu:22.04 AS build
+FROM ubuntu:24.04 AS build
 
 ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_IRODS_VERSION
@@ -12,7 +12,7 @@ RUN apt install -y \
     cmake
     
 RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ jammy main" | tee /etc/apt/sources.list.d/renci-irods.list \
+    && echo "deb [arch=amd64] https://packages.irods.org/apt/ noble main" | tee /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
@@ -34,7 +34,7 @@ RUN cmake ..
 RUN make
 
 # Actual image below
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_DAVRODS_VERSION
@@ -60,7 +60,7 @@ RUN chmod go-w /etc/filebeat/filebeat.yml
 # Install iRODS runtime and icommands
 # We install the version that is currently running in acc/prod
 RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ jammy main" | tee /etc/apt/sources.list.d/renci-irods.list \
+    && echo "deb [arch=amd64] https://packages.irods.org/apt/ noble main" | tee /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
