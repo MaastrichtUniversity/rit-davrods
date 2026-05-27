@@ -116,7 +116,7 @@ COPY config/${ALLOWED_METHODS_FILE} /etc/apache2/conf-available/${ALLOWED_METHOD
 RUN ln -s /etc/apache2/conf-available/${ALLOWED_METHODS_FILE} /etc/apache2/conf-enabled/${ALLOWED_METHODS_FILE}
 
 # Enable 'davrods' in Apache2
-RUN a2enmod davrods
+RUN a2enmod davrods headers
 # Add customized davrods executable to be used with iRODS 4.3.2 runtime currently installed
 COPY --from=build /tmp/davrods/build/mod_davrods.so /usr/lib/apache2/modules/mod_davrods.so
 
