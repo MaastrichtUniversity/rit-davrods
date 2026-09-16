@@ -23,6 +23,8 @@ WORKDIR /tmp
 RUN git clone https://github.com/UtrechtUniversity/davrods.git
 WORKDIR /tmp/davrods
 RUN git checkout c3d7b98878d8fd823f24bcbc5bca2928f4e8a100
+# This next 'sed' disables the trashcan for DavRods users [DHDO-2301]
+RUN sed -i '/Uncomment for trash bypass/{n;s|^\([[:space:]]*\)//|\1|;}' /tmp/davrods/src/repo.c
 WORKDIR /tmp
 RUN mkdir -p /tmp/davrods/build
 
