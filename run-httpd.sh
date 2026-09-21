@@ -23,8 +23,27 @@ if grep -Eq '^[[:space:]]*Dav[[:space:]]+davrods-locallock([[:space:]]|$)' /etc/
 fi
 
 # Start filebeat
+filebeat_pid=
+tail_pid=
+shutdown() {
+  trap '' TERM INT
+  /etc/init.d/apache2 stop
+  if [ -n "$filebeat_pid" ]; then
+    kill -TERM "$filebeat_pid" 2>/dev/null
+    wait "$filebeat_pid"
+  fi
+  if [ -n "$tail_pid" ]; then
+    kill -TERM "$tail_pid" 2>/dev/null
+    wait "$tail_pid"
+  fi
+  exit 0
+}
+trap shutdown TERM INT
+
 if command -v filebeat >/dev/null 2>&1; then
-  filebeat -c /etc/filebeat/filebeat.yml --strict.perms=false >/var/log/filebeat.log 2>&1 &
+  # Override the Debian package launcher's --path.data /var/lib/filebeat.
+  filebeat -c /etc/filebeat/filebeat.yml --path.data /var/log/filebeat-data --strict.perms=false >/var/log/filebeat.log 2>&1 &
+  filebeat_pid=$!
   echo "INFO: Started filebeat using binary"
 else
   echo "WARNING: filebeat is not available in this container, skipping startup"
@@ -40,6 +59,8 @@ ln -s /etc/apache2/sites-available/davrods-vhost.conf /etc/apache2/sites-enabled
 # start the apache daemon
 /etc/init.d/apache2 start
 
-# this script must end with a persistent foreground process
+# Keep the shell as PID 1 so it can forward shutdown signals to Filebeat.
 touch /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
-exec tail -F /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log
+tail -F /var/log/apache2/apache.access.log /var/log/apache2/apache.error.log &
+tail_pid=$!
+wait "$tail_pid"

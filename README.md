@@ -38,6 +38,23 @@ docker-compose build davrods
 docker-compose up -d davrods
 ```
 
+### Persistent Filebeat state
+
+Filebeat stores its registry in `/var/log/filebeat-data`, alongside the Apache
+logs on each container's `/var/log` volume. Mount a separate persistent log
+volume for download and upload; do not share one between the containers. Keep
+these volumes and the Filebeat input IDs unchanged when recreating containers.
+Allow at least 30 seconds for container shutdown so Apache can stop and Filebeat
+can save its read positions.
+
+When upgrading an existing container, stop Filebeat cleanly before copying the
+contents of its current data directory (reported in its startup logs) into
+`/var/log/filebeat-data`, preserving ownership. Do this before removing the old
+container, and migrate each container's state separately. An empty registry can
+cause existing logs to be sent again on the first start. Do not merge or overwrite
+an existing destination registry. Exclude `filebeat-data` from log cleanup and
+rotation jobs.
+
 ### iRODS SSL/TLS
 Configure the client-side SSL setting by editing the `config/irods_environment.json` file.
 
