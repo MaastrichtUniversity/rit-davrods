@@ -1,3 +1,7 @@
+# Keep the registry on this container's persistent /var/log volume.
+path.data: /var/log/filebeat-data
+filebeat.shutdown_timeout: 5s
+
 filebeat.inputs:
   - type: filestream
     id: davrods-log
