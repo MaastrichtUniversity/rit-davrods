@@ -35,6 +35,12 @@ WORKDIR /tmp/davrods/build
 RUN cmake ..
 RUN make
 
+# Use the same APR DBM backend as Davrods to initialize its lock database.
+COPY init-lockdb.c /tmp/init-lockdb.c
+RUN cc $(apr-1-config --includes) $(apu-1-config --includes) \
+    /tmp/init-lockdb.c -o /tmp/init-lockdb \
+    $(apu-1-config --link-ld --libs) $(apr-1-config --link-ld --libs)
+
 # Actual image below
 FROM ubuntu:24.04
 
@@ -102,6 +108,7 @@ RUN if [ $SSL_ENV != "acc" ] && [ $SSL_ENV != "prod" ]; then \
 
 # apache2 config
 COPY run-httpd.sh /opt/run-httpd.sh
+COPY --from=build /tmp/init-lockdb /opt/init-lockdb
 RUN ( chmod +x /opt/run-httpd.sh )
 RUN sed -ri \
         -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \

@@ -15,6 +15,13 @@ if [ -f /config/irods_environment.json ]; then
     chmod 0644 /etc/apache2/irods/irods_environment.json
 fi
 
+# PROPFIND opens the local lock database read-only, so create it before serving
+# requests. This path matches Davrods' default; RWCREATE keeps existing locks.
+if grep -Eq '^[[:space:]]*Dav[[:space:]]+davrods-locallock([[:space:]]|$)' /etc/apache2/sites-available/davrods-vhost.conf; then
+    install -d -o www-data -g www-data -m 0700 /var/lib/davrods || exit 1
+    runuser -u www-data -- /opt/init-lockdb /var/lib/davrods/lockdb_locallock || exit 1
+fi
+
 # Start filebeat
 if command -v filebeat >/dev/null 2>&1; then
   filebeat -c /etc/filebeat/filebeat.yml --strict.perms=false >/var/log/filebeat.log 2>&1 &
