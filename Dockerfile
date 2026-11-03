@@ -1,5 +1,5 @@
 # This build-stage-image contains irods-dev, thus containing clang, which is a huge package. Separated it from the main image to minimize size
-FROM ubuntu:24.04 AS build
+FROM ubuntu:26.04 AS build
 
 ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_IRODS_VERSION
@@ -7,12 +7,15 @@ ARG ENV_IRODS_VERSION
 RUN apt update
 RUN apt install -y \
     apache2-dev \
+    ca-certificates \
     git \
     wget \
     cmake
     
-RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ noble main" | tee /etc/apt/sources.list.d/renci-irods.list \
+RUN mkdir -p /etc/apt/keyrings \
+    && wget -qO /etc/apt/keyrings/irods.asc https://packages.irods.org/irods-signing-key.asc \
+    && chmod 644 /etc/apt/keyrings/irods.asc \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/irods.asc] https://packages.irods.org/apt/ resolute main" | tee /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
@@ -32,7 +35,7 @@ RUN mkdir -p /tmp/davrods/build
 RUN sed -i 's/${ENV_DAVRODS_IRODS_VERSION}/4.3.2/g' /tmp/davrods/CMakeLists.txt
 # Build Davrods for our iRODS version
 WORKDIR /tmp/davrods/build
-RUN cmake ..
+RUN cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
 RUN make
 
 # Use the same APR DBM backend as Davrods to initialize its lock database.
@@ -42,7 +45,7 @@ RUN cc $(apr-1-config --includes) $(apu-1-config --includes) \
     $(apu-1-config --link-ld --libs) $(apr-1-config --link-ld --libs)
 
 # Actual image below
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_DAVRODS_VERSION
@@ -51,6 +54,7 @@ ARG ENV_IRODS_VERSION
 # Install dependencies
 RUN apt update
 RUN apt install -y \
+    ca-certificates \
     wget \
     nano \
     gnupg2 \
@@ -67,8 +71,10 @@ RUN chmod go-w /etc/filebeat/filebeat.yml
 
 # Install iRODS runtime and icommands
 # We install the version that is currently running in acc/prod
-RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - \
-    && echo "deb [arch=amd64] https://packages.irods.org/apt/ noble main" | tee /etc/apt/sources.list.d/renci-irods.list \
+RUN mkdir -p /etc/apt/keyrings \
+    && wget -qO /etc/apt/keyrings/irods.asc https://packages.irods.org/irods-signing-key.asc \
+    && chmod 644 /etc/apt/keyrings/irods.asc \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/irods.asc] https://packages.irods.org/apt/ resolute main" | tee /etc/apt/sources.list.d/renci-irods.list \
     && apt update \
     && DEBIAN_FRONTEND=noninteractive apt install -y \
     irods-runtime=${ENV_IRODS_VERSION} \
